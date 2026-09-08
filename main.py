@@ -148,7 +148,6 @@ def serve_ui():
             function loadProblemDescription() {
                 const id = document.getElementById('problemSelect').value;
                 const prob = window.problems.find(p => p.id == id);
-                document.getElementById('problemDescinnerText'] = prob.description;
                 document.getElementById('problemDesc').innerText = prob.description;
             }
             async function submitSolution() {
