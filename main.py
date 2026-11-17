@@ -2,10 +2,20 @@ import os
 from typing import List
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import google.generativeai as genai
 
 app = FastAPI(title="LLD Practice Platform MVP")
+
+# Enable CORS for all origins (adjust in production as needed)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 if os.environ.get("GEMINI_API_KEY"):
     genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
@@ -38,6 +48,13 @@ class EvaluationResult(BaseModel):
     feedback_notes: str
 
 def evaluate_code_hybrid(problem_id: int, code: str) -> dict:
+    """Perform a lightweight hybrid evaluation of submitted LLD code.
+
+    The function first runs deterministic checks (presence of a class definition
+    and keyword matches) and then, if a Gemini API key is available, queries the
+    LLM for richer feedback. A fallback deterministic feedback is provided when
+    the API is unavailable or an error occurs.
+    """
     code_lower = code.lower()
     has_class = "class " in code_lower
     
@@ -50,7 +67,7 @@ def evaluate_code_hybrid(problem_id: int, code: str) -> dict:
     deterministic_passed = has_class and (keyword_matches >= 2)
     ai_feedback = ""
     solid_score = 3
-    patterns_found = []
+    patterns_found: List[str] = []
 
     try:
         if os.environ.get("GEMINI_API_KEY"):
@@ -103,37 +120,37 @@ def get_all_attempts():
 def serve_ui():
     return """
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang=\"en\">
     <head>
-        <meta charset="UTF-8">
+        <meta charset=\"UTF-8\">
         <title>LLD Practice Platform</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <script src=\"https://cdn.tailwindcss.com\"></script>
     </head>
-    <body class="bg-slate-900 text-slate-100 font-sans min-h-screen p-6">
-        <div class="max-w-6xl mx-auto">
-            <header class="mb-8 border-b border-slate-800 pb-4">
-                <h1 class="text-2xl font-bold text-emerald-400">ArchPractice: LLD Studio</h1>
-                <p class="text-sm text-slate-400">Practice, design, and receive instant architectural feedback.</p>
+    <body class=\"bg-slate-900 text-slate-100 font-sans min-h-screen p-6\">
+        <div class=\"max-w-6xl mx-auto\">
+            <header class=\"mb-8 border-b border-slate-800 pb-4\">
+                <h1 class=\"text-2xl font-bold text-emerald-400\">ArchPractice: LLD Studio</h1>
+                <p class=\"text-sm text-slate-400\">Practice, design, and receive instant architectural feedback.</p>
             </header>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col gap-4">
-                    <h2 class="text-lg font-semibold">1. Select Problem & Draft Design</h2>
-                    <select id="problemSelect" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-slate-200" onchange="loadProblemDescription()">
-                        <option value="1">Design a Parking Lot</option>
-                        <option value="2">Design an Elevator System</option>
+            <div class=\"grid grid-cols-1 md:grid-cols-2 gap-6\">
+                <div class=\"bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col gap-4\">
+                    <h2 class=\"text-lg font-semibold\">1. Select Problem & Draft Design</h2>
+                    <select id=\"problemSelect\" class=\"w-full bg-slate-900 border border-slate-700 rounded p-2 text-slate-200\" onchange=\"loadProblemDescription()\">
+                        <option value=\"1\">Design a Parking Lot</option>
+                        <option value=\"2\">Design an Elevator System</option>
                     </select>
-                    <div id="problemDesc" class="text-xs text-slate-300 bg-slate-900/50 p-3 rounded border border-slate-800"></div>
-                    <textarea id="codeEditor" rows="10" class="w-full bg-slate-900 font-mono text-xs border border-slate-700 rounded p-3 text-emerald-300" placeholder="class ParkingLot: ..."></textarea>
-                    <button onclick="submitSolution()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 px-4 rounded">Submit Design</button>
+                    <div id=\"problemDesc\" class=\"text-xs text-slate-300 bg-slate-900/50 p-3 rounded border border-slate-800\"></div>
+                    <textarea id=\"codeEditor\" rows=\"10\" class=\"w-full bg-slate-900 font-mono text-xs border border-slate-700 rounded p-3 text-emerald-300\" placeholder=\"class ParkingLot: ...\"></textarea>
+                    <button onclick=\"submitSolution()\" class=\"bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2 px-4 rounded\">Submit Design</button>
                 </div>
-                <div class="flex flex-col gap-6">
-                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 flex-1">
-                        <h2 class="text-lg font-semibold mb-4">2. Evaluation & Feedback</h2>
-                        <div id="feedbackContainer" class="text-sm text-slate-400 italic">Submit your design to view feedback.</div>
+                <div class=\"flex flex-col gap-6\">
+                    <div class=\"bg-slate-800 p-6 rounded-xl border border-slate-700 flex-1\">
+                        <h2 class=\"text-lg font-semibold mb-4\">2. Evaluation & Feedback</h2>
+                        <div id=\"feedbackContainer\" class=\"text-sm text-slate-400 italic\">Submit your design to view feedback.</div>
                     </div>
-                    <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
-                        <h2 class="text-lg font-semibold mb-2">Attempt History</h2>
-                        <div id="historyList" class="text-xs text-slate-400 space-y-2 max-h-40 overflow-y-auto">No prior attempts yet.</div>
+                    <div class=\"bg-slate-800 p-6 rounded-xl border border-slate-700\">
+                        <h2 class=\"text-lg font-semibold mb-2\">Attempt History</h2>
+                        <div id=\"historyList\" class=\"text-xs text-slate-400 space-y-2 max-h-40 overflow-y-auto\">No prior attempts yet.</div>
                     </div>
                 </div>
             </div>
@@ -192,3 +209,4 @@ def serve_ui():
     </body>
     </html>
     """
+}
