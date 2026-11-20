@@ -21,3 +21,12 @@ def test_submit_solution():
     assert data["status"] == "COMPLETED"
     assert "solid_score" in data
     assert "feedback_notes" in data
+    # Verify that the attempt was recorded
+    attempts_resp = client.get("/api/attempts")
+    assert attempts_resp.status_code == 200
+    attempts = attempts_resp.json()
+    assert any(att["attempt_id"] == data["attempt_id"] for att in attempts)
+    # Ensure the recorded attempt matches the submitted problem and code
+    recorded = next(att for att in attempts if att["attempt_id"] == data["attempt_id"])
+    assert recorded["problem_id"] == payload["problem_id"]
+    assert recorded["code"] == payload["code"]
