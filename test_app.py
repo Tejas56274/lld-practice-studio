@@ -21,3 +21,20 @@ def test_submit_solution():
     assert data["status"] == "COMPLETED"
     assert "solid_score" in data
     assert "feedback_notes" in data
+
+def test_attempt_history_flow():
+    # Submit a new solution to generate an attempt record
+    payload = {
+        "problem_id": 2,
+        "code": "class ElevatorSystem:\n    def __init__(self, floors):\n        pass"
+    }
+    submit_resp = client.post("/api/submit", json=payload)
+    assert submit_resp.status_code == 200
+    submit_data = submit_resp.json()
+    attempt_id = submit_data["attempt_id"]
+
+    # Retrieve the attempts list and verify the new attempt is present
+    attempts_resp = client.get("/api/attempts")
+    assert attempts_resp.status_code == 200
+    attempts = attempts_resp.json()
+    assert any(att["attempt_id"] == attempt_id for att in attempts)
