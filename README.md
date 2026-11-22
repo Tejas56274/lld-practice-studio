@@ -14,5 +14,30 @@
 ## Setup & Run Locally
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/YOUR_USERNAME/lld-practice-studio.git](https://github.com/YOUR_USERNAME/lld-practice-studio.git)
+   git clone https://github.com/YOUR_USERNAME/lld-practice-studio.git
    cd lld-practice-studio
+   ```
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # On Windows use `venv\Scripts\activate`
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Run the application:
+   ```bash
+   uvicorn main:app --reload
+   ```
+   The app will be available at `http://127.0.0.1:8000`.
+
+## API Endpoints
+- `GET /api/problems` – Retrieve the list of design problems.
+- `POST /api/submit` – Submit a solution for evaluation.
+- `GET /api/attempts` – Retrieve the history of all attempts.
+
+## Running Tests
+```bash
+pytest -q
+```
