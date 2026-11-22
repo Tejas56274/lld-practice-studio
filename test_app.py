@@ -21,3 +21,26 @@ def test_submit_solution():
     assert data["status"] == "COMPLETED"
     assert "solid_score" in data
     assert "feedback_notes" in data
+
+def test_attempt_history():
+    # Ensure history is initially empty
+    resp_initial = client.get("/api/attempts")
+    assert resp_initial.status_code == 200
+    attempts_initial = resp_initial.json()
+    assert isinstance(attempts_initial, list)
+    # Submit a new solution
+    payload = {
+        "problem_id": 2,
+        "code": "class ElevatorSystem:\n    def __init__(self, floors):\n        pass"
+    }
+    submit_resp = client.post("/api/submit", json=payload)
+    assert submit_resp.status_code == 200
+    # Verify the attempt appears in history
+    resp_history = client.get("/api/attempts")
+    assert resp_history.status_code == 200
+    attempts = resp_history.json()
+    assert any(att["problem_id"] == 2 for att in attempts)
+    # The most recent attempt should have the highest attempt_id
+    latest = max(attempts, key=lambda a: a["attempt_id"])
+    assert latest["problem_id"] == 2
+    assert latest["code"].startswith("class ElevatorSystem")
