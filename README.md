@@ -12,7 +12,28 @@
 - **Testing:** Pytest
 
 ## Setup & Run Locally
-1. Clone the repository:
+1. **Clone the repository**
    ```bash
-   git clone [https://github.com/YOUR_USERNAME/lld-practice-studio.git](https://github.com/YOUR_USERNAME/lld-practice-studio.git)
+   git clone https://github.com/YOUR_USERNAME/lld-practice-studio.git
    cd lld-practice-studio
+   ```
+2. **Create a virtual environment and install dependencies**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # On Windows use `venv\Scripts\activate`
+   pip install -r requirements.txt
+   ```
+3. **Configure the Gemini API key (optional)**
+   ```bash
+   export GEMINI_API_KEY=your_gemini_api_key   # On Windows use `set GEMINI_API_KEY=your_gemini_api_key`
+   ```
+4. **Run the application**
+   ```bash
+   uvicorn main:app --reload
+   ```
+   The UI will be available at `http://127.0.0.1:8000/`.
+
+## Running Tests
+```bash
+pytest -q
+```
