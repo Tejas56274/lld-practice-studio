@@ -3,16 +3,42 @@
 > A lightweight practice platform designed to help software engineering learners master Low-Level Design (LLD), submit domain models, and receive instant architectural feedback.
 
 ## Demo & Walkthrough
-- **Loom Video:** [Watch the 60-second walkthrough link here]
+- **Loom Video:** [Watch the 60‑second walkthrough link here](#)
 
 ## Tech Stack
 - **Backend:** FastAPI, Python, Pydantic
 - **Evaluation:** Hybrid engine combining deterministic keyword/class checks with Gemini LLM architectural reasoning
-- **Frontend:** Single-page responsive interface styled with Tailwind CSS
+- **Frontend:** Single‑page responsive interface styled with Tailwind CSS
 - **Testing:** Pytest
 
 ## Setup & Run Locally
-1. Clone the repository:
+1. **Clone the repository**
    ```bash
-   git clone [https://github.com/YOUR_USERNAME/lld-practice-studio.git](https://github.com/YOUR_USERNAME/lld-practice-studio.git)
+   git clone https://github.com/YOUR_USERNAME/lld-practice-studio.git
    cd lld-practice-studio
+   ```
+2. **Create a virtual environment and install dependencies**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # On Windows use `venv\Scripts\activate`
+   pip install -r requirements.txt
+   ```
+3. **(Optional) Set up Gemini API key**
+   ```bash
+   export GEMINI_API_KEY=your_api_key_here   # Linux/macOS
+   set GEMINI_API_KEY=your_api_key_here      # Windows CMD
+   ```
+4. **Run the application**
+   ```bash
+   uvicorn main:app --reload
+   ```
+   The UI will be available at `http://127.0.0.1:8000/`.
+
+## Running Tests
+```bash
+pytest -q
+```
+
+---
+
+*Feel free to open issues or submit pull requests to improve the platform.*
