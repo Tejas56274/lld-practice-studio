@@ -21,3 +21,10 @@ def test_submit_solution():
     assert data["status"] == "COMPLETED"
     assert "solid_score" in data
     assert "feedback_notes" in data
+
+def test_submit_empty_code_returns_422():
+    payload = {"problem_id": 1, "code": "   "}
+    response = client.post("/api/submit", json=payload)
+    assert response.status_code == 422
+    # Ensure the validation error mentions the code field
+    assert "code" in response.text
